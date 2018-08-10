@@ -17,10 +17,25 @@ $router->get('/', function () use ($router) {
 
 $router->get('/swagger', 'SwaggerController@index');
 
-$router->post('/user', 'UserController@create');
-$router->put('/user/{id}', 'UserController@update');
-$router->get('/user', 'UserController@list');
-$router->delete('/user/{id}', 'UserController@delete');
-$router->get('/user/{id}', 'UserController@get');
-$router->options('/user/{id}', 'UserController@option');
-$router->options('/user', 'UserController@option');
+$router->post('/message', 'MessageController@create');
+$router->put('/message/{id}', 'MessageController@update');
+$router->get('/message', 'MessageController@list');
+$router->delete('/message/{id}', 'MessageController@delete');
+$router->get('/message/{id}', 'MessageController@get');
+$router->options('/message/{id}', 'MessageController@option');
+$router->options('/message', 'MessageController@option');
+
+$router->post('/authtoken','AuthTokenController@create');
+$router->options('/authtoken','AuthTokenController@option');
+$router->delete('/authtoken/{token}', 'AuthTokenController@delete');
+$router->get('/authtoken/{token}','AuthTokenController@get');
+$router->options('/authtoken/{token}','AuthTokenController@option');
+
+$router->post('/administrator', 'AdminController@create');
+$router->put('/administrator/{id}', 'AdminController@update');
+$router->get('/administrator', 'AdminController@list');
+$router->delete('/administrator/{id}', 'AdminController@delete');
+$router->get('/administrator/{id}', 'AdminController@get');
+$router->options('/administrator/{id}', 'AdminController@option');
+$router->options('/administrator', 'AdminController@option');
+
