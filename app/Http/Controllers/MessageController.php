@@ -47,6 +47,7 @@ use Laracasts\Validation\FormValidator;
 use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Database\QueryException;
+use DateTime;
 
 class MessageController extends Controller
 {
@@ -129,7 +130,7 @@ class MessageController extends Controller
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'nullable|email',
-            'phone' => 'required|regex:/[+][0-9]{10,15}/',
+            'phone' => 'required|regex:/[+][0-9]{1,3}[-][0-9]{8,12}/',
             'message' => 'required'
         ];
         
@@ -223,7 +224,7 @@ class MessageController extends Controller
             'first_name' => 'nullable',
             'last_name' => 'nullable',
             'email' => 'nullable|email',
-            'phone' => 'nullable|regex:/[+][0-9]{10,15}/',
+            'phone' => 'nullable|regex:/[+][0-9]{1,3}[-][0-9]{8,12}/',
             'message' => 'nullable',
             'stared' => 'numeric|in:0,1|nullable',
             'deleted' => 'numeric|in:0,1|nullable'
@@ -235,8 +236,23 @@ class MessageController extends Controller
         {
             try
             {
-                $result = parent::update($id);
-                return $this->sendResponse(200,['status' => 'SUCCESS', 'messages' => 'Record Updated Successfully']);
+                $admin_id = $this->isTokenValid();
+                if($admin_id)
+                {
+                    if(isset($this->requestData['deleted']) && $this->requestData['deleted'] == 1)
+                    {
+                        $getInfo = \App\Token::where('auth_token', $this->headerToken)->first();
+                        $this->requestData['deleted_by'] = $admin_id;
+                        $this->requestData['deleted_date'] = (new DateTime())->format('Y-m-d H:m:s');
+                    }
+                    $result = parent::update($id);
+                    return $this->sendResponse(200,['status' => 'SUCCESS', 'messages' => 'Record Updated Successfully']);    
+                }
+                else
+                {
+                    return $this->sendResponse(401, ['status' => 'ERROR', 'messages' => 'Unauthorized']);
+                }
+                
             }
             catch(Exception $e)
             {
@@ -527,23 +543,22 @@ class MessageController extends Controller
         {
             try
             {
-                $result = parent::get($id); 
+                $result = parent::get($id);
                 if($result == NULL)
                 {
                     return $this->sendResponse(404, ['status' => 'ERROR', 'messages' => 'No such Record exist']);
                 }
-                return $this->sendResponse(200,$result); 
+                return $this->sendResponse(200,$result);
             }
             catch(Exception $e)
             {
                 return $this->sendResponse(500, ['status' => 'ERROR', 'messages' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            } 
+            }
         }
         else
         {
             return $this->sendResponse(400, ['status' => 'ERROR', 'messages' => implode("'\n'", $errors->all())]);
         }
-        
     }
 
     // Option method

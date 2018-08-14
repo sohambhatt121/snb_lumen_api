@@ -11,21 +11,6 @@
 
 
 
- /**
-  * @SWG\Definition(definition="AdminInfo", type="object",
-  *     @SWG\Property(property="token_id", type="integer", format="int64"),
-  *     @SWG\Property(property="admin_email", type="integer", format="int64"),
-  *     @SWG\Property(property="created_at", type="string", format="date-time"),
-  *     @SWG\Property(property="updated_at", type="string", format="date-time"),
-  *     @SWG\Property(property="admin_name", type="string"),
-  *     @SWG\Property(property="admin_contact", type="integer", format="int64"),
-  *     @SWG\Property(property="admin_type", type="string"),
-  *     @SWG\Property(property="admin_password", type="string", format="password")
-  * )
- */
-
-
-
 /**
  * @SWG\Definition(definition="LoginInfo", type="object",
  *      required={"username", "password"},
@@ -145,13 +130,13 @@ class AuthTokenController extends Controller
         try
         {
             $user = \App\Admin::where('admin_user_name',$user_name)->first();
-            if($user == NULL)
+            if($user == NULL || $user->bloacked == 1)
             {
                 return false;
             }
             else
             {
-                $user = $user->getAttributes(); 
+                $user = $user->getAttributes();
                 return Hash::check($password,$user['admin_password'])?$user['admin_id']:false;
             }
         }
@@ -192,7 +177,7 @@ class AuthTokenController extends Controller
     *   @SWG\Response(
     *     response="200",
     *     description="Success",
-    *     @SWG\Schema(ref="#/definitions/AdminInfo")
+    *     @SWG\Schema(ref="#/definitions/AuthToken")
     *   ),
     *   @SWG\Response(
     *     response="400",

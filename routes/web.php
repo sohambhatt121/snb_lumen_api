@@ -39,3 +39,19 @@ $router->get('/administrator/{id}', 'AdminController@get');
 $router->options('/administrator/{id}', 'AdminController@option');
 $router->options('/administrator', 'AdminController@option');
 
+$router->post('/event', 'EventController@create');
+$router->put('/event/{id}', 'EventController@update');
+$router->get('/event', 'EventController@list');
+$router->delete('/event/{id}', 'EventController@delete');
+$router->get('/event/{id}', 'EventController@get');
+$router->options('/event/{id}', 'EventController@option');
+$router->options('/event', 'EventController@option');
+
+$router->post('/image', 'ImageController@create');
+$router->put('/image/{id}', 'ImageController@update');
+$router->get('/image', 'ImageController@list');
+$router->delete('/image/{id}', 'ImageController@delete');
+$router->get('/image/{id}', 'ImageController@get');
+$router->options('/image/{id}', 'ImageController@option');
+$router->options('/image', 'ImageController@option');
+

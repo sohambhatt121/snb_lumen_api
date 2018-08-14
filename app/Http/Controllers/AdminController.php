@@ -17,8 +17,9 @@
   *     @SWG\Property(property="admin_firstname", type="string"),
   *     @SWG\Property(property="admin_lastname", type="string"),
   *     @SWG\Property(property="admin_contact", type="string" ),
+  *     @SWG\Property(property="admin_user_name", type="string"),
   *     @SWG\Property(property="admin_password", type="string", format="password"),
-  *     @SWG\Property(property="admin_user_name", type="string", format="password")
+  *     @SWG\Property(property="admin_block", type="number" , format="int64")
   * )
  */
 
@@ -28,6 +29,7 @@ use Illuminate\Support\Facades\Hash;
 use Laracasts\Validation\FormValidator;
 use Illuminate\Http\Request;
 use Exception;
+use DateTime;
 use Illuminate\Database\QueryException;
 
 class AdminController extends Controller
@@ -123,8 +125,9 @@ class AdminController extends Controller
             'admin_lastname' => 'required',
             'admin_email' => 'email',
             'admin_contact' => 'regex:/[0-9]{10}/|required',
-            'admin_password' => 'min:4',
-            'admin_user_name' => 'required'
+            'admin_user_name' => 'required',
+            'admin_password' => 'min:4|required',
+            'admin_type' => 'required|numeric|in:1,2'
         ];
 
         $errors = $this->validation($this->requestData,$expectedForCreate);
@@ -133,10 +136,22 @@ class AdminController extends Controller
         {
             try
             {
-                if($this->isTokenValid() && $this->isAdminUser())
+                $admin_id = $this->isSuperAdminUser();
+                if($admin_id)
                 {
-                    $result = parent::create();
-                    return $this->sendResponse(200,['status' => 'SUCCESS', 'messages' => 'Record Created Successfully', 'id' => $result['id']]); 
+                    $this->requestData['added_by'] = $admin_id;
+
+                    $check_un = \App\Admin::where('admin_user_name', $this->requestData['admin_user_name'])->first();
+                    //var_dump($check_un);exit();
+                    if($check_un == null)
+                    {
+                        $result = parent::create();
+                        return $this->sendResponse(200,['status' => 'SUCCESS', 'messages' => 'Record Created Successfully', 'id' => $result['id']]);    
+                    }
+                    else
+                    {
+                        return $this->sendResponse(401, ['status' => 'ERROR', 'messages' => 'Username is already taken']);
+                    }    
                 }
                 else
                 {
@@ -225,7 +240,8 @@ class AdminController extends Controller
             'admin_lastname' => 'nullable',
             'admin_contact' => 'regex:/[0-9]{10}/|nullable',
             'admin_password' => 'min:4|nullable',
-            'admin_user_name' => 'min:4|nullable'
+            'admin_user_name' => 'min:4|nullable',
+            'admin_block' => 'numeric|in:0,1'
         ];
         
         $errors = $this->validation($this->requestData, $expectedForUpdate);
@@ -234,15 +250,39 @@ class AdminController extends Controller
             try
             {
                 $users = \App\Admin::where('admin_id',$id)->first();
-                
-                if($users == NULL && $this->isTokenValid() && $this->isAdminUser())
+
+                if($users != NULL && $this->isTokenValid())
                 {
-                    return $this->sendResponse(404, ['status' => 'ERROR', 'messages' => 'User Not found or Invalid Access']);
+                    if(isset($this->requestData['admin_block']) && $this->requestData['admin_block'] == 1)
+                    {
+                        $admin_id = $this->isSuperAdminUser();
+                        if(!isset($admin_id))
+                        {
+                            return $this->sendResponse(404, ['status' => 'ERROR', 'messages' => 'Invalid Access']);
+                        }
+                        else
+                        {
+                            $this->requestData['blocked_by'] = $admin_id;
+                            $this->requestData['blocked_date'] = (new DateTime())->format('Y-m-d H:m:s');
+                        }
+                    }
+
+                    if(isset($this->requestData['admin_user_name']))
+                    {
+                        $check_un = \App\Admin::where('admin_user_name', $this->requestData['admin_user_name'])->first();
+                        //var_dump($check_un);exit();
+                        if($check_un != null)
+                        {
+                            return $this->sendResponse(401, ['status' => 'ERROR', 'messages' => 'Username is already taken']);
+                        }
+                    }
+
+                    $result = parent::update($id);
+                    return $this->sendResponse(200,['status' => 'SUCCESS', 'messages' => 'Record Updated Successfully']);
                 }
                 else
                 {
-                    $result = parent::update($id);       
-                    return $this->sendResponse(200,['status' => 'SUCCESS', 'messages' => 'Record Updated Successfully']);
+                    return $this->sendResponse(404, ['status' => 'ERROR', 'messages' => 'User Not found or Invalid Access']);
                 }
             }
             catch(Exception $e)

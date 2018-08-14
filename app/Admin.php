@@ -60,6 +60,14 @@ class Admin extends BaseModel
      * @Column(type="string", length=20, nullable=false)
      * @SWG\Property()
      */
+    public $admin_user_name;
+
+    /**
+     *
+     * @var string
+     * @Column(type="string", length=20, nullable=false)
+     * @SWG\Property()
+     */
     public $admin_password;
 
     /**
@@ -68,6 +76,6 @@ class Admin extends BaseModel
      * @Column(type="string", length=20, nullable=false)
      * @SWG\Property()
      */
-    public $admin_user_name;
+    public $admin_type;
 
 }

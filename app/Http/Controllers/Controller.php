@@ -30,14 +30,14 @@ class Controller extends BaseController
         $this->headerToken = $request->header('Authorization');
         $this->queryString = $request->query();
         $this->headerType = $request->header('Content-Type');
-        
         if($this->headerType == 'application/json')
-        {
+        {   
             $this->requestData = json_decode($request->getContent(), TRUE);
+
         }
         else
-        {
-            $this->requestFile = $request->file('company_logo');
+        {//var_dump($this->headerType);exit();
+            $this->requestFile = $request->file('url');
             $this->requestData = $request->post();
         }
     }
@@ -46,13 +46,14 @@ class Controller extends BaseController
     {
     	//return true;
         $getInfo = \App\Token::where('auth_token', $this->headerToken)->first();
+        //var_dump($getInfo->admin_id);exit();
         if($getInfo == NULL)
         {
             return false;
         }
         else
         {
-            return true;
+            return $getInfo->admin_id;
         }
     }
 
@@ -69,16 +70,17 @@ class Controller extends BaseController
         }
     }
 
-    /*public function isAdminUser()
+    public function isSuperAdminUser()
     {
     	//return true;
         $getInfo = \App\Token::where('auth_token', $this->headerToken)->first();
-        if($getInfo != NULL && $getInfo->adminid != NULL)
+        if($getInfo != NULL && $getInfo->admin_id != NULL)
         {
-            $user = $getInfo->adminid->getAttributes();
-            if($user['admin_type'] == 'admin')
+
+            $user = \App\Admin::where('admin_id', $getInfo->admin_id)->first();
+            if($user['admin_type'] == 1)
             {
-                return true;
+                return $getInfo->admin_id;
             }
             else
             {
@@ -89,7 +91,7 @@ class Controller extends BaseController
         {
             return false;
         }
-    }*/
+    }
 
     /*public function isSalesPerson()
     {
