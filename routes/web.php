@@ -55,3 +55,14 @@ $router->get('/image/{id}', 'ImageController@get');
 $router->options('/image/{id}', 'ImageController@option');
 $router->options('/image', 'ImageController@option');
 
+$router->get('/youtube','YoutubeController@list');
+$router->options('/youtube','YoutubeController@option');
+
+$router->post('/program', 'ProgramController@create');
+$router->put('/program/{id}', 'ProgramController@update');
+$router->get('/program', 'ProgramController@list');
+$router->delete('/program/{id}', 'ProgramController@delete');
+$router->get('/program/{id}', 'ProgramController@get');
+$router->options('/program/{id}', 'ProgramController@option');
+$router->options('/program', 'ProgramController@option');
+

@@ -333,21 +333,6 @@ class EventController extends Controller
      *         type="string"
      *     ),
      *     @SWG\Parameter(
-     *         description="search by email",
-     *         format="email",
-     *         in="query",
-     *         name="email",
-     *         required=false,
-     *         type="string"
-     *     ),
-     *     @SWG\Parameter(
-     *         description="search by phone",
-     *         in="query",
-     *         name="phone",
-     *         required=false,
-     *         type="string"
-     *     ),
-     *     @SWG\Parameter(
      *         description="Stared",
      *         in="query",
      *         name="stared",
